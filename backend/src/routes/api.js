@@ -27,19 +27,25 @@ router.post('/auth/login', (req, res) => {
   const { email, password } = req.body;
   
   if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required' });
+    return res.status(400).json({ success: false, message: 'Email and password are required' });
   }
 
   const db = readDb();
   const user = db.users.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
   
   if (!user) {
-    return res.status(401).json({ message: 'Account not found. Please register.' });
+    return res.status(401).json({
+      success: false,
+      message: "Invalid credentials"
+    });
   }
   
   // Verify password hash matches
   if (user.passwordHash !== hashPassword(password)) {
-    return res.status(401).json({ message: 'Incorrect email or password' });
+    return res.status(401).json({
+      success: false,
+      message: "Invalid credentials"
+    });
   }
   
   // Attach user registrations and saved events dynamically
@@ -52,7 +58,11 @@ router.post('/auth/login', (req, res) => {
     savedEvents: Array.from(new Set([...(user.savedEvents || []), ...userSaved]))
   };
   
-  res.json({ user: payload, token: 'mock-jwt-token' });
+  return res.status(200).json({
+    success: true,
+    token: 'mock-jwt-token',
+    user: payload
+  });
 });
 
 router.post('/auth/signup', (req, res) => {

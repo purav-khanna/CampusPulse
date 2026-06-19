@@ -18,12 +18,19 @@ async function request(endpoint, options = {}) {
 
   const response = await fetch(url, config);
 
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.message || `API request failed with status ${response.status}`);
+  const text = await response.text();
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (e) {
+    data = { message: text || `API request failed with status ${response.status}` };
   }
 
-  return response.json();
+  if (!response.ok) {
+    throw new Error(data.message || `API request failed with status ${response.status}`);
+  }
+
+  return data;
 }
 
 export const apiService = {
