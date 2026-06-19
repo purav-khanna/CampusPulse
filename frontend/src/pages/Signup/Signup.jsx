@@ -13,10 +13,14 @@ export default function Signup() {
 
   const handleChange = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    signup(form);
-    navigate('/dashboard');
+    try {
+      await signup(form);
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Signup submission failed:', err);
+    }
   };
 
   const roles = [

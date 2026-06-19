@@ -1,4 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+const BASE_URL = BACKEND_URL ? `${BACKEND_URL}/api` : (import.meta.env.VITE_API_BASE_URL || '/api');
 
 async function request(endpoint, options = {}) {
   const url = `${BASE_URL}${endpoint}`;
@@ -16,9 +17,13 @@ async function request(endpoint, options = {}) {
     config.body = JSON.stringify(config.body);
   }
 
+  console.log(`[API REQUEST] Method: ${config.method || 'GET'} -> URL: ${url}`);
   const response = await fetch(url, config);
+  console.log(`[API RESPONSE] URL: ${url} -> Status: ${response.status} ${response.statusText}`);
 
   const text = await response.text();
+  console.log(`[API RESPONSE BODY] URL: ${url} -> Raw:`, text);
+  
   let data;
   try {
     data = text ? JSON.parse(text) : {};
