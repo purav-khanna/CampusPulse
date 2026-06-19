@@ -1,4 +1,9 @@
 import 'dotenv/config';
+
+if (!process.env.GEMINI_API_KEY) {
+  console.log("Gemini API key missing");
+}
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';

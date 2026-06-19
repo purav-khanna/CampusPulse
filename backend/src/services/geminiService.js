@@ -1,11 +1,7 @@
 // CampusPulse Gemini AI Service Layer
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-let genAI = null;
-let model = null;
 
 /**
- * Helper to query Gemini API using official SDK
+ * Helper to query Gemini API using direct REST call to handle AQ. API keys natively.
  * @param {string} promptText
  * @returns {Promise<string>}
  */
@@ -17,22 +13,44 @@ export async function callGemini(promptText) {
     throw err;
   }
 
-  // Initialize SDK if not already done
-  if (!genAI || !model) {
-    genAI = new GoogleGenerativeAI(apiKey);
-    model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  }
-
-  console.log('[CALLING GEMINI] Sending prompt to Gemini 2.5 Flash...');
+  console.log('[CALLING GEMINI] Sending prompt to Gemini 2.5 Flash via REST...');
   
   try {
-    const result = await model.generateContent(promptText);
-    const response = await result.response;
-    const resultText = response.text();
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: promptText
+              }
+            ]
+          }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Gemini API returned status ${response.status}: ${errText}`);
+    }
+
+    const data = await response.json();
+    const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!resultText) {
+      throw new Error('Invalid or empty response from Gemini API');
+    }
+
     console.log(`[GEMINI RESPONSE RECEIVED] Generation successful. Reply size: ${resultText.length} chars`);
     return resultText;
   } catch (err) {
-    console.error('[GEMINI ERROR] Exception during SDK call:', err);
+    console.error('[GEMINI ERROR] Exception during REST call:', err);
     throw err;
   }
 }
