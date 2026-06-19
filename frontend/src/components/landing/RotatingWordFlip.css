@@ -1,0 +1,98 @@
+.rotating-word-container {
+  display: inline-block;
+  position: relative;
+  perspective: 800px;
+  vertical-align: baseline;
+}
+
+.rotating-word-inner {
+  display: inline-block;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.rotating-word {
+  display: inline-block;
+  position: relative;
+  color: var(--primary-400);
+  font-weight: inherit;
+  transform-style: preserve-3d;
+  background: linear-gradient(135deg, var(--primary-400), var(--accent-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Outgoing word - flips backward (up and away) */
+.rotating-word.exit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation: flipOut 700ms cubic-bezier(0.35, 0, 0.25, 1) forwards;
+}
+
+/* Incoming word - flips in from below */
+.rotating-word.enter {
+  animation: flipIn 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.rotating-word.idle {
+  /* No animation, just sitting */
+}
+
+@keyframes flipOut {
+  0% {
+    transform: rotateX(0deg) translateY(0);
+    opacity: 1;
+    filter: blur(0);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(-90deg) translateY(-20px);
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+
+@keyframes flipIn {
+  0% {
+    transform: rotateX(90deg) translateY(20px);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(0deg) translateY(0);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* Width transition sizer - invisible helper to measure the next word */
+.rotating-word-sizer {
+  display: inline-block;
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+
+/* Wrapper that animates width changes smoothly */
+.rotating-word-width-wrapper {
+  display: inline-block;
+  transition: width 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: visible;
+  position: relative;
+  vertical-align: baseline;
+}
+
+/* Subtle shadow on the text during transition */
+.rotating-word.enter,
+.rotating-word.exit {
+  text-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}

@@ -1,0 +1,10 @@
+{
+  "name": "campuspulse-root",
+  "version": "1.0.0",
+  "description": "CampusPulse root script runner",
+  "private": true,
+  "scripts": {
+    "dev": "npx concurrently \"npm run dev --prefix frontend\" \"npm run start --prefix backend\"",
+    "build": "npm run build --prefix frontend"
+  }
+}

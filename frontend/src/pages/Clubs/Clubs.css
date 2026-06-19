@@ -1,0 +1,927 @@
+/* ============================================================
+   Clubs Module — Glassmorphism Dark Redesign
+   Design tokens: near-black base, glass cards, accent gradient
+   (#6366F1 → #8B5CF6 → #D946EF) used sparingly for CTAs/active.
+   ============================================================ */
+
+/* ── Theme variables ───────────────────────────────────────── */
+.clubs-page,
+.club-detail {
+  --cl-bg-base: var(--bg-primary);
+  --cl-surface: var(--bg-elevated);
+  --cl-surface-hover: var(--bg-tertiary);
+  --cl-border: var(--border-color);
+  --cl-border-hover: var(--gray-300);
+  --cl-text-primary: var(--text-primary);
+  --cl-text-secondary: var(--text-secondary);
+  --cl-text-muted: var(--text-tertiary);
+  --cl-accent-gradient: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  --cl-radius-lg: 20px;
+  --cl-radius: 16px;
+  --cl-radius-sm: 10px;
+  --cl-radius-xs: 8px;
+  --cl-blur: none;
+  --cl-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  min-height: calc(100vh - var(--navbar-height, 64px));
+  box-sizing: border-box;
+  color: var(--cl-text-primary);
+}
+
+/* ── Container & Animation ─────────────────────────────────── */
+.clubs-page {
+  padding: var(--space-6) 0 var(--space-12);
+  animation: cl-fadeIn 0.4s ease-out;
+}
+
+@keyframes cl-fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Page Header ───────────────────────────────────────────── */
+.page-header h1 {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  letter-spacing: var(--tracking-tight);
+  color: var(--cl-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.page-header p {
+  color: var(--cl-text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* ── Toolbar & Filters ─────────────────────────────────────── */
+.clubs-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-8) 0 var(--space-6);
+  flex-wrap: wrap;
+}
+
+.clubs-toolbar .search-wrap {
+  flex: 1;
+  min-width: 280px;
+  position: relative;
+}
+
+.clubs-toolbar .search-wrap input.form-input {
+  width: 100%;
+  padding-left: 44px;
+  height: 48px;
+  background: var(--cl-surface);
+  border: 1px solid var(--cl-border);
+  border-radius: var(--cl-radius-sm);
+  color: var(--cl-text-primary);
+  outline: none;
+  font-size: var(--text-sm);
+  transition: all var(--cl-transition);
+}
+
+.clubs-toolbar .search-wrap input.form-input:focus {
+  border-color: rgba(139, 92, 246, 0.4);
+  background: var(--cl-surface-hover);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.clubs-toolbar .search-wrap svg {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cl-text-muted);
+  pointer-events: none;
+  transition: color var(--cl-transition);
+}
+
+.clubs-toolbar .search-wrap input.form-input:focus + svg {
+  color: #8B5CF6;
+}
+
+/* Filter Chips */
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: var(--space-8);
+}
+
+.clubs-page .filter-chip {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--cl-radius-xs);
+  background: var(--cl-surface);
+  color: var(--cl-text-secondary);
+  border: 1px solid var(--cl-border);
+  cursor: pointer;
+  transition: all var(--cl-transition);
+}
+
+.clubs-page .filter-chip:hover {
+  background: var(--cl-surface-hover);
+  color: var(--cl-text-primary);
+  border-color: var(--cl-border-hover);
+}
+
+.clubs-page .filter-chip.active {
+  background: var(--cl-accent-gradient);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.3);
+}
+
+/* ── Clubs Grid & Premium Cards ────────────────────────────── */
+.clubs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 24px;
+}
+
+.club-card {
+  background: var(--cl-surface);
+  backdrop-filter: var(--cl-blur);
+  -webkit-backdrop-filter: var(--cl-blur);
+  border: 1px solid var(--cl-border);
+  border-radius: var(--cl-radius-lg);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: all var(--cl-transition);
+  position: relative;
+  box-sizing: border-box;
+  box-shadow: var(--shadow-sm);
+}
+
+.club-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--cl-border-hover);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Card Banner */
+.club-card-banner {
+  width: 100%;
+  height: 120px;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-tertiary);
+}
+
+.club-card-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.club-card:hover .club-card-banner img {
+  transform: scale(1.05);
+}
+
+.club-banner-placeholder {
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 55% 85%, rgba(217, 70, 239, 0.06) 0%, transparent 55%),
+    linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+}
+
+/* Card Body */
+.club-card-body {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.club-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: var(--space-4);
+  position: relative;
+}
+
+/* Overlapping Logo wrapper */
+.club-card-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 3px solid var(--bg-elevated);
+  margin-top: -38px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 800;
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.club-card-title-group {
+  margin-top: -8px;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.club-card-title-group h3 {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--cl-text-primary);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-category {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--primary-50);
+  color: var(--primary-600);
+  border: 1px solid var(--primary-100);
+}
+
+.club-card-desc {
+  font-size: var(--text-sm);
+  color: var(--cl-text-secondary);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-6);
+  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.club-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.club-card-stats {
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--cl-text-muted);
+}
+
+.club-card-stats span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.club-card-stats svg {
+  color: var(--cl-text-muted);
+}
+
+.club-card-activity {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--primary-600);
+  padding: 4px 10px;
+  background: var(--primary-50);
+  border-radius: 20px;
+  border: 1px solid var(--primary-100);
+}
+
+/* ── Club Detail Hero & Layout ─────────────────────────────── */
+.club-detail {
+  padding: var(--space-6) 0 var(--space-12);
+  animation: cl-fadeIn 0.4s ease-out;
+}
+
+/* Hero card with banner */
+.club-detail-header-card {
+  background: var(--cl-surface);
+  backdrop-filter: var(--cl-blur);
+  -webkit-backdrop-filter: var(--cl-blur);
+  border: 1px solid var(--cl-border);
+  border-radius: var(--cl-radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-8);
+  box-shadow: var(--shadow-sm);
+}
+
+.club-detail-banner {
+  width: 100%;
+  height: 200px;
+  background: var(--bg-tertiary);
+  position: relative;
+}
+
+.club-detail-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.club-detail-header-info-bar {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.club-detail-logo {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 5px solid var(--bg-elevated);
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 900;
+  font-size: var(--text-2xl);
+  flex-shrink: 0;
+  z-index: 2;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.club-detail-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+  min-width: 260px;
+}
+
+.club-detail-info h1 {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--cl-text-primary);
+  margin-bottom: 6px;
+}
+
+.club-detail-info p {
+  font-size: var(--text-sm);
+  color: var(--cl-text-secondary);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-4);
+}
+
+.club-detail-stats {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.club-detail-stats span {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.club-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Detail page grid layout */
+.club-detail-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .club-detail-grid {
+    grid-template-columns: 1fr;
+  }
+  .club-detail-header-info-bar {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-top: 24px;
+  }
+  .club-detail-stats {
+    justify-content: center;
+  }
+  .club-detail-actions {
+    margin-top: 16px;
+  }
+}
+
+/* ── Panel Cards (About, Posts, Members, Events) ─────────────── */
+.club-about,
+.club-posts,
+.club-members-card {
+  background: var(--bg-elevated);
+  backdrop-filter: var(--cl-blur);
+  -webkit-backdrop-filter: var(--cl-blur);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.club-about h3,
+.club-posts h3,
+.club-members-card h3 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.club-about p {
+  font-size: var(--text-sm);
+  color: var(--cl-text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+.club-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: var(--space-5);
+}
+
+/* ── Member item & Post lists ────────────── */
+.club-member-item {
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+  gap: 16px;
+}
+
+.club-member-item:last-child {
+  border-bottom: none;
+}
+
+.club-member-item .avatar {
+  flex-shrink: 0;
+}
+
+.club-member-item .member-name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 100px;
+}
+
+.club-member-item .member-role {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-weight: 500;
+  background: var(--bg-tertiary);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  min-width: 80px;
+  text-align: center;
+}
+
+.club-member-item .member-date {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Upcoming items */
+.upcoming-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--cl-radius-sm);
+  margin-bottom: var(--space-3);
+  transition: all var(--cl-transition);
+}
+
+.upcoming-item:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+  transform: translateX(2px);
+}
+
+.upcoming-date {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--cl-radius-xs);
+  background: var(--cl-accent-gradient);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.upcoming-date .day {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.upcoming-date .month {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.upcoming-info h4 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--cl-text-primary);
+  margin-bottom: 2px;
+}
+
+.upcoming-info p {
+  font-size: var(--text-xs);
+  color: var(--cl-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Social Posts Feed */
+.club-post-item {
+  padding: 18px;
+  border-radius: var(--cl-radius);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  margin-bottom: var(--space-4);
+  transition: border-color var(--cl-transition);
+}
+
+.club-post-item:hover {
+  border-color: var(--gray-300);
+}
+
+.club-post-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.club-post-header h4 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--cl-text-primary);
+}
+
+.club-post-header span {
+  font-size: var(--text-xs);
+  color: var(--cl-text-muted);
+}
+
+.club-post-content {
+  font-size: var(--text-sm);
+  color: var(--cl-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.club-post-likes {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cl-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.club-post-likes svg {
+  color: #EF4444;
+}
+
+/* ── Modals & Forms (Shared for Create/Edit Club) ───────────── */
+.cl-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg-overlay);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: cl-fadeIn 0.15s ease;
+}
+
+.cl-modal-container {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--cl-radius-lg);
+  width: 92vw;
+  max-width: 520px;
+  max-height: 90vh;
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: cl-slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cl-slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cl-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cl-modal-header h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.cl-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  transition: all var(--cl-transition);
+}
+
+.cl-modal-close:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.cl-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.cl-modal-footer {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg-elevated);
+  padding: 18px 24px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  z-index: 10;
+}
+
+/* Modal Footer Buttons Fix */
+.cl-modal-footer .btn {
+  height: 48px !important;
+  min-width: 130px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  transition: all var(--cl-transition);
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.cl-modal-footer .btn-primary {
+  background: linear-gradient(to right, #4f46e5, #7c3aed) !important;
+  color: white !important;
+}
+
+.cl-modal-footer .btn-primary:hover {
+  opacity: 0.95;
+  background: linear-gradient(to right, #4338ca, #6d28d9) !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
+}
+
+.cl-modal-footer .btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none !important;
+}
+
+.cl-modal-footer .btn-secondary {
+  background: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.cl-modal-footer .btn-secondary:hover {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--text-secondary) !important;
+}
+
+/* Forms */
+.cl-form-group {
+  margin-bottom: 18px;
+}
+
+.cl-form-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.cl-form-input,
+.cl-form-textarea,
+.cl-form-select {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--cl-radius-xs);
+  padding: 11px 14px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+  transition: all var(--cl-transition);
+}
+
+.cl-form-input:focus,
+.cl-form-textarea:focus,
+.cl-form-select:focus {
+  border-color: var(--primary-400);
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.cl-form-input::placeholder,
+.cl-form-textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+.cl-form-textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.cl-form-select {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.cl-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Image drag & drop zone styles */
+.image-upload-zone {
+  border: 2px dashed var(--border-color) !important;
+  border-radius: var(--cl-radius) !important;
+  padding: 20px !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  background: var(--bg-tertiary) !important;
+  transition: all var(--cl-transition) !important;
+}
+
+.image-upload-zone:hover,
+.image-upload-zone.dragover {
+  border-color: var(--primary-400) !important;
+  background: var(--primary-50) !important;
+}
+
+.image-upload-zone svg {
+  color: var(--text-tertiary);
+  transition: color var(--cl-transition);
+}
+
+.image-upload-zone:hover svg {
+  color: var(--primary-500);
+}
+
+/* ── Miscellaneous & Utilities ─────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: var(--space-16) var(--space-6);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--cl-radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.empty-state h3 {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.empty-state p {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.empty-state-icon {
+  color: var(--text-tertiary);
+}
+
+/* Toast */
+.toast-notification {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid #10B981;
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--cl-radius-sm);
+  padding: var(--space-4) var(--space-6);
+  z-index: 1000;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: cl-slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cl-slideInRight {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.member-count-animate {
+  display: inline-block;
+  animation: cl-countPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cl-countPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); color: #8B5CF6; }
+  100% { transform: scale(1); }
+}
+
+@media (max-width: 576px) {
+  .cl-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .clubs-grid {
+    grid-template-columns: 1fr;
+  }
+}

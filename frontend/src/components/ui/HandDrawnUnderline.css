@@ -1,0 +1,54 @@
+.hand-drawn-underline-wrapper {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.hand-drawn-text {
+  position: relative;
+  z-index: 2;
+}
+
+.hand-drawn-underline-svg {
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 10px;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hand-drawn-underline-path {
+  stroke: #6EE7D8; /* Brand accent color */
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+/* Scroll reveal triggers animation */
+.hand-drawn-underline-wrapper.is-visible .hand-drawn-underline-path {
+  opacity: 1;
+  animation: drawStroke ease-out forwards;
+}
+
+@keyframes drawStroke {
+  0% {
+    stroke-dashoffset: 120;
+    filter: drop-shadow(0 0 5px rgba(110, 231, 216, 0.8));
+    opacity: 0.8;
+  }
+  15% {
+    opacity: 1;
+  }
+  80% {
+    filter: drop-shadow(0 0 5px rgba(110, 231, 216, 0.8));
+  }
+  100% {
+    stroke-dashoffset: 0;
+    filter: drop-shadow(0 0 1px rgba(110, 231, 216, 0.3));
+    opacity: 0.95;
+  }
+}
