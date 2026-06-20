@@ -79,7 +79,7 @@ export default function ClubDetail() {
       members: newMembers
     }));
     
-    showToast(isLeaving ? `Left ${club.name}` : `✅ Joined ${club.name}`);
+    showToast(isLeaving ? `Left ${club.name}` : `Successfully joined club.`);
     
     try {
       await toggleJoinClub(club.id);

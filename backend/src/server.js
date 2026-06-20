@@ -1,8 +1,11 @@
 import 'dotenv/config';
 
-if (!process.env.GEMINI_API_KEY) {
-  console.log("Gemini API key missing");
-}
+console.log(
+  "Gemini key loaded:",
+  process.env.GEMINI_API_KEY
+    ? process.env.GEMINI_API_KEY.substring(0,8) + "..."
+    : "NOT FOUND"
+);
 
 import express from 'express';
 import cors from 'cors';
@@ -11,7 +14,7 @@ import fs from 'fs';
 import http from 'http';
 import { fileURLToPath } from 'url';
 import apiRouter from './routes/api.js';
-import { initializeDb } from './database/db.js';
+import { initializeDb, readDb } from './database/db.js';
 import { initSocket } from './services/socketService.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -52,6 +55,11 @@ app.use('/uploads', express.static(uploadsDir));
 
 // Initialize persistent database
 initializeDb();
+
+// Log number of admin users on startup
+const db = readDb();
+const adminCount = db.users.filter(u => u.role === 'admin').length;
+console.log(`[STARTUP] Number of admin users found: ${adminCount}`);
 
 // Register API Router
 app.use('/api', apiRouter);

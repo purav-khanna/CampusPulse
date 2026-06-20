@@ -6,7 +6,12 @@ import { getIo, isUserOnline, getUserSocketId } from '../services/socketService.
 
 const router = Router();
 
-console.log("Gemini Key Loaded:", !!process.env.GEMINI_API_KEY);
+console.log(
+  "Gemini key loaded:",
+  process.env.GEMINI_API_KEY
+    ? process.env.GEMINI_API_KEY.substring(0,8) + "..."
+    : "NOT FOUND"
+);
 
 router.get('/test-gemini', async (req, res) => {
   console.log('[AI REQUEST RECEIVED] GET /api/test-gemini');
@@ -15,8 +20,50 @@ router.get('/test-gemini', async (req, res) => {
     res.json({ message: reply.trim() });
   } catch (error) {
     console.error('[GEMINI ERROR] Test route failed:', error);
+    console.error('[FULL GEMINI ERROR OBJECT]:', error);
+    if (error.status === 429 || error.message?.includes('429')) {
+      return res.status(429).json({
+        success: false,
+        message: "CampusPulse AI is temporarily unavailable. Daily Gemini quota reached."
+      });
+    }
     res.status(500).json({ error: error.message });
   }
+});
+
+router.get('/ai/health', (req, res) => {
+  res.json({
+    success: true,
+    geminiConfigured: !!process.env.GEMINI_API_KEY
+  });
+});
+
+router.get('/ai/test', async (req, res) => {
+  console.log('[AI REQUEST RECEIVED] GET /api/ai/test');
+  try {
+    const reply = await callGemini('Hello');
+    res.json({ success: true, response: reply.trim() });
+  } catch (error) {
+    console.error('[GEMINI ERROR] /api/ai/test failed:', error);
+    console.error('[FULL GEMINI ERROR OBJECT]:', error);
+    if (error.status === 429 || error.message?.includes('429')) {
+      return res.status(429).json({
+        success: false,
+        message: "CampusPulse AI is temporarily unavailable. Daily Gemini quota reached."
+      });
+    }
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.get('/debug/gemini', (req, res) => {
+  const key = process.env.GEMINI_API_KEY;
+  res.json({
+    keyLoaded: !!key,
+    keyPrefix: key ? key.slice(0, 10) : null,
+    keyLength: key ? key.length : 0,
+    model: 'gemini-2.5-flash'
+  });
 });
 
 // ----------------------------------------------------
@@ -1128,6 +1175,13 @@ router.post(['/announcements', '/announcements/create'], async (req, res) => {
     aiSummary = aiSummary.trim().replace(/^"|"$/g, '');
   } catch (err) {
     console.warn('Gemini summary failed, using local fallback:', err);
+    console.error('[FULL GEMINI ERROR OBJECT]:', err);
+    if (err.status === 429 || err.message?.includes('429')) {
+      return res.status(429).json({
+        success: false,
+        message: "CampusPulse AI is temporarily unavailable. Daily Gemini quota reached."
+      });
+    }
     aiSummary = actualContent.length > 80 ? actualContent.slice(0, 80) + '...' : actualContent;
   }
 
@@ -1384,6 +1438,13 @@ router.post('/ai/recommendations', async (req, res) => {
     res.json(parsedData);
   } catch (error) {
     console.error('[GEMINI ERROR] Gemini AI recommendations failed, falling back to local engine:', error);
+    console.error('[FULL GEMINI ERROR OBJECT]:', error);
+    if (error.status === 429 || error.message?.includes('429')) {
+      return res.status(429).json({
+        success: false,
+        message: "CampusPulse AI is temporarily unavailable. Daily Gemini quota reached."
+      });
+    }
     try {
       const localRecommendations = getLocalRecommendations(user, db);
       res.json(localRecommendations);
@@ -1429,6 +1490,13 @@ router.post('/ai/insight/:eventId', async (req, res) => {
     res.json({ insight: cleanResult });
   } catch (error) {
     console.error('[GEMINI ERROR] Gemini AI insights failed, falling back to local template:', error);
+    console.error('[FULL GEMINI ERROR OBJECT]:', error);
+    if (error.status === 429 || error.message?.includes('429')) {
+      return res.status(429).json({
+        success: false,
+        message: "CampusPulse AI is temporarily unavailable. Daily Gemini quota reached."
+      });
+    }
     const matchedTag = event.tags && user.interests ? event.tags.find(t => user.interests.map(i => i.toLowerCase()).includes(t.toLowerCase())) : null;
     let reason = `Recommended because it aligns with your academic department (${user.department}) and matches peer activities.`;
     if (matchedTag) {
@@ -1474,6 +1542,13 @@ router.post('/ai/search', async (req, res) => {
     res.json({ result: rawResult });
   } catch (error) {
     console.error('[GEMINI ERROR] Gemini AI search failed, running local query match:', error);
+    console.error('[FULL GEMINI ERROR OBJECT]:', error);
+    if (error.status === 429 || error.message?.includes('429')) {
+      return res.status(429).json({
+        success: false,
+        message: "CampusPulse AI is temporarily unavailable. Daily Gemini quota reached."
+      });
+    }
     const q = (query || '').toLowerCase().trim();
     const matches = [];
     
@@ -1656,16 +1731,19 @@ async function triggerAIReply(conversationId, userQuery, user, db) {
     }
   } catch (err) {
     console.error('[GEMINI ERROR] Error generating AI reply in chat:', err);
+    console.error('[FULL GEMINI ERROR OBJECT]:', err);
     if (io) {
       io.to(`convo-${convoId}`).emit('typing', { conversationId: convoId, userId: 'ai', userName: 'CampusPulse AI', isTyping: false });
+      
+      const friendlyMessage = "CampusPulse AI is temporarily unavailable. Daily Gemini quota reached.";
       
       const errMsg = {
         messageId: Date.now() + Math.random(),
         conversationId: convoId,
         senderId: 'ai',
         receiverId: null,
-        text: `Gemini AI reply failed: ${err.message}`,
-        message: `Gemini AI reply failed: ${err.message}`,
+        text: friendlyMessage,
+        message: friendlyMessage,
         fileUrl: null,
         fileName: null,
         fileType: null,

@@ -6,6 +6,8 @@
  * @returns {Promise<string>}
  */
 export async function callGemini(promptText) {
+  console.log("Loaded Gemini Key:", process.env.GEMINI_API_KEY?.slice(0,10));
+  console.log("Gemini Key Length:", process.env.GEMINI_API_KEY?.length);
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     const err = new Error('Gemini API key is not configured.');
@@ -38,7 +40,10 @@ export async function callGemini(promptText) {
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`Gemini API returned status ${response.status}: ${errText}`);
+      console.error("[FULL GEMINI ERROR OBJECT]:", { status: response.status, error: errText });
+      const err = new Error(`Gemini API returned status ${response.status}: ${errText}`);
+      err.status = response.status;
+      throw err;
     }
 
     const data = await response.json();

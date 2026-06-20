@@ -39,6 +39,34 @@ export function readDb() {
       dbChanged = true;
     }
 
+    // Migration: Ensure the admin user Purav123@admin.com is correctly configured
+    const adminUser = db.users.find(u => u.email.toLowerCase() === 'purav123@admin.com');
+    const correctAdminHash = hashPassword('Purav@123');
+    if (adminUser) {
+      if (adminUser.passwordHash !== correctAdminHash || adminUser.role !== 'admin') {
+        adminUser.passwordHash = correctAdminHash;
+        adminUser.role = 'admin';
+        dbChanged = true;
+      }
+    } else {
+      db.users.push({
+        id: 4,
+        name: "Purav",
+        email: "Purav123@admin.com",
+        role: "admin",
+        department: "Administration",
+        designation: "Platform Administrator",
+        bio: "Managing CampusPulse platform operations.",
+        permissions: "full_access",
+        joinedDate: "2023-01-01",
+        passwordHash: correctAdminHash,
+        joinedClubs: [],
+        registeredEvents: [],
+        savedEvents: []
+      });
+      dbChanged = true;
+    }
+
     if (!db.user_settings) {
       db.user_settings = [];
       dbChanged = true;
@@ -263,7 +291,8 @@ function getSeedData() {
         designation: "Platform Administrator",
         bio: "Managing CampusPulse platform operations.",
         permissions: "full_access",
-        joinedDate: "2023-01-01"
+        joinedDate: "2023-01-01",
+        passwordHash: hashPassword('Purav@123')
       }
     ],
     events: [

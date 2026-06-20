@@ -48,7 +48,6 @@ CampusPulse is a comprehensive, MERN-stack campus engagement platform designed t
 - **Backend**: Express (Node.js REST API Server), Multer (File uploads), Socket.io (Real-time events).
 - **AI Engine**: Google Gemini Generative AI (`@google/generative-ai`) for smart event suggestions and announcement summarizations.
 
-🌐 Live Demo - https://campuspulse-1-qjj3.onrender.com
 
 ---
 
