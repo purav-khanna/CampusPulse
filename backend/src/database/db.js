@@ -2,10 +2,59 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
+import mongoose from 'mongoose';
+import 'dotenv/config';
+import dns from 'dns';
+
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4']);
+} catch (e) {
+  console.warn('Custom DNS setServers failed:', e);
+}
+
+
+// Import models
+import User from '../models/User.js';
+import Club from '../models/Club.js';
+import Event from '../models/Event.js';
+import Announcement from '../models/Announcement.js';
+import Chat from '../models/Chat.js';
+import Notification from '../models/Notification.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DB_FILE = path.join(__dirname, 'data.json');
+
+let useMongo = false;
+let dbCache = null;
+
+const COLLECTIONS = [
+  'users',
+  'events',
+  'clubs',
+  'registrations',
+  'savedEvents',
+  'comments',
+  'notifications',
+  'announcements',
+  'resources',
+  'club_members',
+  'user_settings',
+  'conversations',
+  'participants',
+  'messages',
+  'joinRequests',
+  'auditLogs'
+];
+
+const MODEL_MAPPING = {
+  users: User,
+  clubs: Club,
+  events: Event,
+  announcements: Announcement,
+  messages: Chat,
+  notifications: Notification
+};
 
 // SHA-256 Hashing helper
 export function hashPassword(password) {
@@ -13,180 +62,381 @@ export function hashPassword(password) {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
-// Helper to check if file exists and read it
-export function readDb() {
+function getLocalDbData() {
   try {
     if (!fs.existsSync(DB_FILE)) {
-      initializeDb();
+      const seed = getSeedData();
+      fs.writeFileSync(DB_FILE, JSON.stringify(seed, null, 2), 'utf8');
+      console.log('Database initialized with default seed data.');
+      return seed;
     }
-    let raw = fs.readFileSync(DB_FILE, 'utf8');
-    let db = JSON.parse(raw);
-    
-    let dbChanged = false;
-    if (!db.registrationsMigrated) {
-      migrateRegistrations(db);
-      dbChanged = true;
-    }
-    
-    if (!db.passwordsMigrated) {
-      // Load current db from memory/file and migrate
-      db.users.forEach(u => {
-        if (!u.passwordHash) {
-          u.passwordHash = hashPassword('password123');
-        }
-      });
-      db.passwordsMigrated = true;
-      dbChanged = true;
-    }
-
-    // Migration: Ensure the admin user Purav123@admin.com is correctly configured
-    const adminUser = db.users.find(u => u.email.toLowerCase() === 'purav123@admin.com');
-    const correctAdminHash = hashPassword('Purav@123');
-    if (adminUser) {
-      if (adminUser.passwordHash !== correctAdminHash || adminUser.role !== 'admin') {
-        adminUser.passwordHash = correctAdminHash;
-        adminUser.role = 'admin';
-        dbChanged = true;
-      }
-    } else {
-      db.users.push({
-        id: 4,
-        name: "Purav",
-        email: "Purav123@admin.com",
-        role: "admin",
-        department: "Administration",
-        designation: "Platform Administrator",
-        bio: "Managing CampusPulse platform operations.",
-        permissions: "full_access",
-        joinedDate: "2023-01-01",
-        passwordHash: correctAdminHash,
-        joinedClubs: [],
-        registeredEvents: [],
-        savedEvents: []
-      });
-      dbChanged = true;
-    }
-
-    if (!db.user_settings) {
-      db.user_settings = [];
-      dbChanged = true;
-    }
-
-    if (!db.joinRequests) {
-      db.joinRequests = [
-        { id: 'jr1', clubId: 1, userId: 101, name: 'Rahul Sharma', department: 'CSE', year: '3rd Year', avatar: 'RS', status: 'pending', requestedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
-        { id: 'jr2', clubId: 1, userId: 102, name: 'Nisha Verma', department: 'IT', year: '2nd Year', avatar: 'NV', status: 'pending', requestedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
-        { id: 'jr3', clubId: 1, userId: 103, name: 'Dev Patel', department: 'ECE', year: '4th Year', avatar: 'DP', status: 'pending', requestedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString() }
-      ];
-      dbChanged = true;
-    }
-
-    // Migration: Auto-create clubs for Club Leaders without a clubId
-    let leadersMigrated = false;
-    if (db.users) {
-      db.users.forEach(u => {
-        const isLeader = u.role && (u.role.toLowerCase() === 'clubleader' || u.role.toLowerCase() === 'club_leader');
-        if (isLeader && !u.clubId) {
-          const defaultClubId = Date.now() + Math.floor(Math.random() * 1000);
-          const defaultClub = {
-            id: defaultClubId,
-            name: `${u.name}'s Club`,
-            logo: u.name ? u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : 'CL',
-            category: 'Technical',
-            description: `Welcome to ${u.name}'s Club. Managed by ${u.name}.`,
-            longDescription: `Welcome to ${u.name}'s Club. Managed by ${u.name}. This club was automatically initialized for the club leader.`,
-            memberCount: 1,
-            color: '#6366f1',
-            founded: new Date().getFullYear().toString(),
-            president: u.name,
-            presidentAvatar: u.name ? u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : 'CL',
-            tags: ['general', 'technical'],
-            isJoined: true,
-            events: [],
-            leaderId: u.id,
-            ownerId: u.id
-          };
-          if (!db.clubs) db.clubs = [];
-          db.clubs.push(defaultClub);
-          u.clubId = defaultClubId;
-          if (!u.joinedClubs) u.joinedClubs = [];
-          u.joinedClubs.push(defaultClubId);
-          leadersMigrated = true;
-        }
-      });
-    }
-    if (leadersMigrated) {
-      dbChanged = true;
-    }
-
-    if (!db.messagesMigrated) {
-      if (!db.messages) db.messages = [];
-      db.messages.forEach(m => {
-        if (m.isRead === undefined) {
-          m.isRead = m.readStatus === 'read';
-        }
-        if (m.text === undefined) {
-          m.text = m.message || '';
-        }
-        if (m.timestamp === undefined) {
-          m.timestamp = m.createdAt || new Date().toISOString();
-        }
-      });
-      db.messagesMigrated = true;
-      dbChanged = true;
-    }
-    // Migration: ensure events have creatorId, announcements have authorId, and users have empty arrays
-    let extraMigrated = false;
-    if (db.events) {
-      db.events.forEach(e => {
-        if (e.creatorId === undefined) {
-          e.creatorId = 2; // Default to Dr. Rajesh Kumar
-          extraMigrated = true;
-        }
-      });
-    }
-    if (db.announcements) {
-      db.announcements.forEach(a => {
-        if (a.authorId === undefined) {
-          if (a.author === 'Dr. Rajesh Kumar') {
-            a.authorId = 2;
-          } else if (a.author === 'professor') {
-            a.authorId = 1781773403397;
-          } else {
-            a.authorId = 2;
-          }
-          extraMigrated = true;
-        }
-      });
-    }
-    if (db.users) {
-      db.users.forEach(u => {
-        if (!u.joinedClubs) {
-          u.joinedClubs = [];
-          extraMigrated = true;
-        }
-        if (!u.registeredEvents) {
-          u.registeredEvents = [];
-          extraMigrated = true;
-        }
-        if (!u.savedEvents) {
-          u.savedEvents = [];
-          extraMigrated = true;
-        }
-      });
-    }
-    if (extraMigrated) {
-      dbChanged = true;
-    }
-    
-    if (dbChanged) {
-      fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf8');
-    }
-    
-    return db;
+    const raw = fs.readFileSync(DB_FILE, 'utf8');
+    return JSON.parse(raw);
   } catch (err) {
-    console.error('Error reading database file:', err);
+    console.error('Error reading local file database:', err);
     return getSeedData();
+  }
+}
+
+function loadCacheFromLocalFile() {
+  dbCache = getLocalDbData();
+}
+
+// Load cache from MongoDB Atlas
+async function loadCacheFromMongo() {
+  const db = {};
+  
+  // Load metadata flags
+  try {
+    const meta = await mongoose.connection.db.collection('system_metadata').findOne({ _id: 'migration_flags' });
+    if (meta) {
+      db.registrationsMigrated = meta.registrationsMigrated;
+      db.passwordsMigrated = meta.passwordsMigrated;
+      db.messagesMigrated = meta.messagesMigrated;
+    } else {
+      db.registrationsMigrated = false;
+      db.passwordsMigrated = false;
+      db.messagesMigrated = false;
+    }
+  } catch (err) {
+    console.error('Error loading metadata from Mongo:', err);
+  }
+
+  // Load each collection
+  let isDbEmpty = true;
+  for (const colName of COLLECTIONS) {
+    try {
+      let items;
+      if (MODEL_MAPPING[colName]) {
+        items = await MODEL_MAPPING[colName].find().lean();
+      } else {
+        items = await mongoose.connection.db.collection(colName).find().toArray();
+      }
+      db[colName] = items;
+      if (items.length > 0) {
+        isDbEmpty = false;
+      }
+    } catch (err) {
+      console.error(`Error loading collection ${colName} from Mongo:`, err);
+      db[colName] = [];
+    }
+  }
+
+  // If database is completely empty, seed it from local data.json
+  if (isDbEmpty) {
+    console.log('[DATABASE] MongoDB Atlas is empty. Seeding from local data.json...');
+    const localDb = getLocalDbData();
+    Object.assign(db, localDb);
+    await syncToMongoAsync(db);
+    console.log('[DATABASE] MongoDB Atlas successfully seeded with local data.');
+  }
+
+  dbCache = db;
+
+  // Run migrations on dbCache
+  let dbChanged = false;
+  if (!dbCache.registrationsMigrated) {
+    migrateRegistrations(dbCache);
+    dbChanged = true;
+  }
+  
+  if (!dbCache.passwordsMigrated) {
+    dbCache.users.forEach(u => {
+      if (!u.passwordHash) {
+        u.passwordHash = hashPassword('password123');
+      }
+    });
+    dbCache.passwordsMigrated = true;
+    dbChanged = true;
+  }
+
+  const adminUser = dbCache.users.find(u => u.email.toLowerCase() === 'purav123@admin.com');
+  const correctAdminHash = hashPassword('Purav@123');
+  if (adminUser) {
+    if (adminUser.passwordHash !== correctAdminHash || adminUser.role !== 'admin') {
+      adminUser.passwordHash = correctAdminHash;
+      adminUser.role = 'admin';
+      dbChanged = true;
+    }
+  } else {
+    dbCache.users.push({
+      id: 4,
+      name: "Purav",
+      email: "Purav123@admin.com",
+      role: "admin",
+      department: "Administration",
+      designation: "Platform Administrator",
+      bio: "Managing CampusPulse platform operations.",
+      permissions: "full_access",
+      joinedDate: "2023-01-01",
+      passwordHash: correctAdminHash,
+      joinedClubs: [],
+      registeredEvents: [],
+      savedEvents: []
+    });
+    dbChanged = true;
+  }
+
+  if (!dbCache.user_settings) {
+    dbCache.user_settings = [];
+    dbChanged = true;
+  }
+
+  if (!dbCache.joinRequests) {
+    dbCache.joinRequests = [
+      { id: 'jr1', clubId: 1, userId: 101, name: 'Rahul Sharma', department: 'CSE', year: '3rd Year', avatar: 'RS', status: 'pending', requestedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+      { id: 'jr2', clubId: 1, userId: 102, name: 'Nisha Verma', department: 'IT', year: '2nd Year', avatar: 'NV', status: 'pending', requestedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
+      { id: 'jr3', clubId: 1, userId: 103, name: 'Dev Patel', department: 'ECE', year: '4th Year', avatar: 'DP', status: 'pending', requestedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString() }
+    ];
+    dbChanged = true;
+  }
+
+  let leadersMigrated = false;
+  if (dbCache.users) {
+    dbCache.users.forEach(u => {
+      const isLeader = u.role && (u.role.toLowerCase() === 'clubleader' || u.role.toLowerCase() === 'club_leader');
+      if (isLeader && !u.clubId) {
+        const defaultClubId = Date.now() + Math.floor(Math.random() * 1000);
+        const defaultClub = {
+          id: defaultClubId,
+          name: `${u.name}'s Club`,
+          logo: u.name ? u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : 'CL',
+          category: 'Technical',
+          description: `Welcome to ${u.name}'s Club. Managed by ${u.name}.`,
+          longDescription: `Welcome to ${u.name}'s Club. Managed by ${u.name}. This club was automatically initialized for the club leader.`,
+          memberCount: 1,
+          color: '#6366f1',
+          founded: new Date().getFullYear().toString(),
+          president: u.name,
+          presidentAvatar: u.name ? u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : 'CL',
+          tags: ['general', 'technical'],
+          isJoined: true,
+          events: [],
+          leaderId: u.id,
+          ownerId: u.id
+        };
+        if (!dbCache.clubs) dbCache.clubs = [];
+        dbCache.clubs.push(defaultClub);
+        u.clubId = defaultClubId;
+        if (!u.joinedClubs) u.joinedClubs = [];
+        u.joinedClubs.push(defaultClubId);
+        leadersMigrated = true;
+      }
+    });
+  }
+  if (leadersMigrated) {
+    dbChanged = true;
+  }
+
+  if (!dbCache.messagesMigrated) {
+    if (!dbCache.messages) dbCache.messages = [];
+    dbCache.messages.forEach(m => {
+      if (m.isRead === undefined) {
+        m.isRead = m.readStatus === 'read';
+      }
+      if (m.text === undefined) {
+        m.text = m.message || '';
+      }
+      if (m.timestamp === undefined) {
+        m.timestamp = m.createdAt || new Date().toISOString();
+      }
+    });
+    dbCache.messagesMigrated = true;
+    dbChanged = true;
+  }
+
+  let extraMigrated = false;
+  if (dbCache.events) {
+    dbCache.events.forEach(e => {
+      if (e.creatorId === undefined) {
+        e.creatorId = 2;
+        extraMigrated = true;
+      }
+    });
+  }
+  if (dbCache.announcements) {
+    dbCache.announcements.forEach(a => {
+      if (a.authorId === undefined) {
+        if (a.author === 'Dr. Rajesh Kumar') {
+          a.authorId = 2;
+        } else if (a.author === 'professor') {
+          a.authorId = 1781773403397;
+        } else {
+          a.authorId = 2;
+        }
+        extraMigrated = true;
+      }
+    });
+  }
+  if (dbCache.users) {
+    dbCache.users.forEach(u => {
+      if (!u.joinedClubs) {
+        u.joinedClubs = [];
+        extraMigrated = true;
+      }
+      if (!u.registeredEvents) {
+        u.registeredEvents = [];
+        extraMigrated = true;
+      }
+      if (!u.savedEvents) {
+        u.savedEvents = [];
+        extraMigrated = true;
+      }
+    });
+  }
+  if (extraMigrated) {
+    dbChanged = true;
+  }
+
+  if (dbChanged) {
+    console.log('[DATABASE] Post-migration changes detected. Syncing to MongoDB Atlas...');
+    await syncToMongoAsync(dbCache);
+  }
+}
+
+function getPrimaryKeyField(item) {
+  if (item && typeof item === 'object') {
+    if ('id' in item) return 'id';
+    if ('messageId' in item) return 'messageId';
+    if ('userId' in item) return 'userId';
+  }
+  return null;
+}
+
+async function syncToMongoAsync(db) {
+  if (!useMongo) return;
+
+  // Sync metadata flags
+  try {
+    await mongoose.connection.db.collection('system_metadata').updateOne(
+      { _id: 'migration_flags' },
+      {
+        $set: {
+          registrationsMigrated: db.registrationsMigrated || false,
+          passwordsMigrated: db.passwordsMigrated || false,
+          messagesMigrated: db.messagesMigrated || false
+        }
+      },
+      { upsert: true }
+    );
+  } catch (err) {
+    console.error('[DATABASE] Error syncing metadata flags to Mongo:', err);
+  }
+
+  // Sync each collection
+  for (const colName of COLLECTIONS) {
+    try {
+      const array = db[colName] || [];
+      if (array.length === 0) {
+        if (MODEL_MAPPING[colName]) {
+          await MODEL_MAPPING[colName].deleteMany({});
+        } else {
+          await mongoose.connection.db.collection(colName).deleteMany({});
+        }
+        continue;
+      }
+
+      const bulkOps = array.map(item => {
+        const pkField = getPrimaryKeyField(item);
+        if (pkField) {
+          const query = {};
+          query[pkField] = item[pkField];
+          
+          const updateDoc = { ...item };
+          delete updateDoc._id; // Ensure we don't change immutable _id field
+          
+          return {
+            updateOne: {
+              filter: query,
+              update: { $set: updateDoc },
+              upsert: true
+            }
+          };
+        }
+        return null;
+      }).filter(Boolean);
+
+      if (bulkOps.length > 0) {
+        if (MODEL_MAPPING[colName]) {
+          await MODEL_MAPPING[colName].bulkWrite(bulkOps);
+        } else {
+          await mongoose.connection.db.collection(colName).bulkWrite(bulkOps);
+        }
+      }
+
+      const pkField = getPrimaryKeyField(array[0]);
+      if (pkField) {
+        const currentIds = array.map(item => item[pkField]);
+        const deleteQuery = {};
+        deleteQuery[pkField] = { $nin: currentIds };
+        if (MODEL_MAPPING[colName]) {
+          await MODEL_MAPPING[colName].deleteMany(deleteQuery);
+        } else {
+          await mongoose.connection.db.collection(colName).deleteMany(deleteQuery);
+        }
+      }
+    } catch (err) {
+      console.error(`[DATABASE] Error syncing collection ${colName} to Mongo:`, err);
+    }
+  }
+}
+
+// Helper to check if file exists and read it
+export function readDb() {
+  if (!dbCache) {
+    loadCacheFromLocalFile();
+  }
+  return dbCache;
+}
+
+// Helper to write to database
+export function writeDb(data) {
+  dbCache = data;
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Error writing database file:', err);
+  }
+
+  if (useMongo) {
+    syncToMongoAsync(data).catch(err => {
+      console.error('[DATABASE] Error syncing to MongoDB Atlas:', err);
+    });
+  }
+}
+
+// Initialize persistent database
+export async function initializeDb() {
+  const mongoUri = process.env.MONGO_URI;
+  if (mongoUri) {
+    console.log('[DATABASE] MONGO_URI detected. Connecting to MongoDB Atlas...');
+    try {
+      await mongoose.connect(mongoUri);
+      console.log('MongoDB Connected');
+      useMongo = true;
+      
+      // Auto-create missing collections
+      const collectionsInDb = await mongoose.connection.db.listCollections().toArray();
+      const collectionNames = collectionsInDb.map(c => c.name);
+      for (const colName of COLLECTIONS) {
+        if (!collectionNames.includes(colName)) {
+          await mongoose.connection.db.createCollection(colName);
+          console.log(`Created collection: ${colName}`);
+        }
+      }
+      
+      await loadCacheFromMongo();
+      console.log('[DATABASE] Loaded cache from MongoDB Atlas.');
+    } catch (err) {
+      console.error('MongoDB Connection Failed');
+      console.error(err);
+      useMongo = false;
+      loadCacheFromLocalFile();
+    }
+  } else {
+    console.log('[DATABASE] MONGO_URI not defined. Using local file-based database (data.json).');
+    useMongo = false;
+    loadCacheFromLocalFile();
   }
 }
 
@@ -219,25 +469,6 @@ function migrateRegistrations(db) {
   } catch (err) {
     console.error('Error migrating registrations database:', err);
   }
-}
-
-// Helper to write to database
-export function writeDb(data) {
-  try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
-  } catch (err) {
-    console.error('Error writing database file:', err);
-  }
-}
-
-// Initialize database with default seed data if it doesn't exist
-export function initializeDb() {
-  if (fs.existsSync(DB_FILE)) {
-    return;
-  }
-  const seed = getSeedData();
-  writeDb(seed);
-  console.log('Database initialized with default seed data.');
 }
 
 function getSeedData() {

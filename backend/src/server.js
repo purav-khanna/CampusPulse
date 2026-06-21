@@ -54,7 +54,7 @@ if (!fs.existsSync(uploadsDir)) {
 app.use('/uploads', express.static(uploadsDir));
 
 // Initialize persistent database
-initializeDb();
+await initializeDb();
 
 // Log number of admin users on startup
 const db = readDb();
