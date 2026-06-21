@@ -634,7 +634,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 280px;
+  height: auto;
+  min-height: 250px;
 }
 
 .core-feature-card:hover {
@@ -1272,6 +1273,15 @@
   .core-features-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .bento-card-70, .bento-card-30 {
+    grid-column: span 2;
+  }
+
+  .bento-card-ai-matching {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
 }
 
 @media (max-width: 768px) {
@@ -1281,6 +1291,10 @@
 
   .bento-grid-container {
     grid-template-columns: 1fr;
+  }
+
+  .bento-card-70, .bento-card-30 {
+    grid-column: span 1;
   }
 
   .bento-card-double {
@@ -1296,7 +1310,9 @@
   }
 
   .preview-tabs-row {
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
   }
 }
 
@@ -1321,4 +1337,13 @@
   .chip-club-update { right: -5px; }
   .chip-recommendation { left: -10px; }
   .chip-event-alert { left: -10px; }
+
+  .hero-main-title {
+    font-size: 2.25rem !important;
+  }
+
+  .bento-stats-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
 }

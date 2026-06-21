@@ -547,23 +547,9 @@ export default function ProfessorDashboard({ initialTab }) {
       {/* Quick Actions Card Section */}
       <div className="quick-actions-section" style={{ marginBottom: 'var(--space-6)' }}>
         <h3 style={{ fontSize: 'var(--text-base)', fontWeight: '700', marginBottom: 'var(--space-3)', color: 'var(--text-primary)' }}>Quick Actions</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--space-4)' }}>
+        <div className="quick-actions-grid">
           
-          <div 
-            className="action-card card-hover" 
-            onClick={openCreateClubModal}
-            style={{ 
-              cursor: 'pointer', 
-              padding: 'var(--space-4) var(--space-5)', 
-              borderRadius: 'var(--radius-xl)', 
-              background: 'var(--bg-elevated)', 
-              border: '1px solid var(--border-color)', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 'var(--space-4)', 
-              transition: 'all 0.2s ease'
-            }}
-          >
+          <div className="action-card card-hover" onClick={openCreateClubModal}>
             <div style={{ 
               width: '40px', 
               height: '40px', 
@@ -583,21 +569,7 @@ export default function ProfessorDashboard({ initialTab }) {
             </div>
           </div>
 
-          <div 
-            className="action-card card-hover" 
-            onClick={() => openCreateEventModal()}
-            style={{ 
-              cursor: 'pointer', 
-              padding: 'var(--space-4) var(--space-5)', 
-              borderRadius: 'var(--radius-xl)', 
-              background: 'var(--bg-elevated)', 
-              border: '1px solid var(--border-color)', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 'var(--space-4)', 
-              transition: 'all 0.2s ease'
-            }}
-          >
+          <div className="action-card card-hover" onClick={() => openCreateEventModal()}>
             <div style={{ 
               width: '40px', 
               height: '40px', 
@@ -626,17 +598,6 @@ export default function ProfessorDashboard({ initialTab }) {
                 if (titleInput) titleInput.focus();
               }, 100);
             }}
-            style={{ 
-              cursor: 'pointer', 
-              padding: 'var(--space-4) var(--space-5)', 
-              borderRadius: 'var(--radius-xl)', 
-              background: 'var(--bg-elevated)', 
-              border: '1px solid var(--border-color)', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 'var(--space-4)', 
-              transition: 'all 0.2s ease'
-            }}
           >
             <div style={{ 
               width: '40px', 
@@ -661,7 +622,7 @@ export default function ProfessorDashboard({ initialTab }) {
       </div>
 
       {/* Mini Stats Grid */}
-      <div className="stats-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+      <div className="stats-row">
         {miniStats.map((s, i) => (
           <div 
             className="mini-stat" 
@@ -692,7 +653,7 @@ export default function ProfessorDashboard({ initialTab }) {
 
       {/* OVERVIEW PANEL */}
       {activeTab === 'overview' && (
-        <div className="cl-overview-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--space-6)' }}>
+        <div className="cl-overview-grid">
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
             
@@ -1059,7 +1020,7 @@ export default function ProfessorDashboard({ initialTab }) {
               </div>
 
               {/* Roster & Join Requests split */}
-              <div className="cl-overview-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6)' }}>
+              <div className="cl-overview-grid equal-cols">
                 
                 {/* Join Requests */}
                 <div className="dash-card">
@@ -1172,7 +1133,7 @@ export default function ProfessorDashboard({ initialTab }) {
 
       {/* ANNOUNCEMENTS PANEL */}
       {activeTab === 'announcements' && (
-        <div className="cl-overview-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr', gap: 'var(--space-6)' }}>
+        <div className="cl-overview-grid reversed-cols">
           
           {/* Post announcement */}
           <div className="dash-card" style={{ height: 'fit-content' }}>

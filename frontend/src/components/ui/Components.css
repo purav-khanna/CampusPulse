@@ -324,6 +324,13 @@
   gap: var(--space-1);
   border-bottom: 1px solid var(--border-color);
   overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab {

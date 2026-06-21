@@ -892,3 +892,35 @@
   font-size: var(--text-xs);
   font-weight: 500;
 }
+
+@media (max-width: 768px) {
+  .cl-dashboard-container {
+    padding: 12px;
+    gap: 16px;
+  }
+  
+  .dashboard-welcome h1 {
+    font-size: var(--text-2xl);
+  }
+  
+  .cl-badge-filter {
+    margin-left: 0;
+    margin-top: 6px;
+    display: inline-flex;
+  }
+  
+  .cl-quick-actions-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .cl-quick-actions-row button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-welcome h1 {
+    font-size: var(--text-xl);
+  }
+}

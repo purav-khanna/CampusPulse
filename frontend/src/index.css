@@ -505,6 +505,12 @@ p {
   }
 }
 
+@media (max-width: 480px) {
+  .container {
+    padding: 0 var(--space-2);
+  }
+}
+
 .table-responsive {
   width: 100%;
   overflow-x: auto;

@@ -808,3 +808,22 @@
     display: none;
   }
 }
+
+@media (max-width: 480px) {
+  .navbar-brand-text {
+    display: none;
+  }
+  .btn-ai-glow span {
+    display: none;
+  }
+  .btn-ai-glow {
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    border-radius: var(--radius-lg);
+  }
+  .navbar-actions {
+    gap: var(--space-1);
+  }
+}
