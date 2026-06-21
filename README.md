@@ -2,6 +2,10 @@
 
 CampusPulse is a comprehensive, MERN-stack campus engagement platform designed to streamline student activities, club operations, and event management. It provides role-based dashboard consoles that empower Students, Club Leaders, Professors, and Administrators to interact and manage campus events, announcements, and chat channels seamlessly.
 
+🌐 Live Demo
+
+🚀 Live Website: https://campuspulse-lt6p.onrender.com
+
 ---
 
 ## 🚀 Key Features
