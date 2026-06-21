@@ -3,7 +3,7 @@
 .dashboard-welcome p { color: var(--text-secondary); font-size: var(--text-base); }
 .dashboard-welcome .wave { display: inline-block; animation: float 2s ease-in-out infinite; font-size: var(--text-3xl); margin-right: var(--space-2); }
 
-.quick-access { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-8); }
+.quick-access { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: var(--space-4); margin-bottom: var(--space-8); }
 .quick-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: var(--space-5); display: flex; align-items: center; gap: var(--space-4); transition: all var(--transition-base); text-decoration: none; color: var(--text-primary); }
 .quick-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--primary-200); color: var(--text-primary); }
 .quick-card-icon { width: 44px; height: 44px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white; }
@@ -77,7 +77,7 @@
 .club-chip:hover { border-color: var(--primary-300); background: var(--primary-50); color: var(--text-primary); }
 .club-chip-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-.stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-8); }
+.stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr)); gap: var(--space-4); margin-bottom: var(--space-8); }
 .mini-stat { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-xl); padding: var(--space-4); text-align: center; }
 .mini-stat-num { font-size: var(--text-2xl); font-weight: 800; color: var(--primary-500); }
 .mini-stat-label { font-size: var(--text-xs); color: var(--text-secondary); margin-top: var(--space-1); }
@@ -148,4 +148,20 @@
 .cl-dropdown-item-danger:hover {
   background: rgba(239, 68, 68, 0.08);
   color: var(--danger-600);
+}
+
+@media (max-width: 480px) {
+  .dashboard-page h1 {
+    font-size: var(--text-2xl);
+  }
+  .chart-container {
+    height: 200px;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-table th, .admin-table td {
+    padding: var(--space-2);
+    font-size: var(--text-xs);
+  }
 }

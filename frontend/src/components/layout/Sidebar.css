@@ -42,7 +42,7 @@
   color: var(--primary-500);
 }
 
-@media (min-width: 1025px) {
+@media (min-width: 769px) {
   .sidebar-brand {
     display: none;
   }
@@ -146,7 +146,7 @@
 .sidebar-overlay {
   display: none;
 }
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
     top: 0;

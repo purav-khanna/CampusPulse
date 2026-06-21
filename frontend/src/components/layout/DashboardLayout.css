@@ -10,9 +10,15 @@
   transition: margin-left var(--transition-base);
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .dashboard-content {
     margin-left: 0;
     padding: var(--space-4);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-content {
+    padding: var(--space-2);
   }
 }

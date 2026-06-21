@@ -164,3 +164,15 @@
   color: var(--primary-500);
   font-weight: 600;
 }
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--space-6) var(--space-4);
+  }
+  .auth-role-selector {
+    gap: var(--space-1);
+  }
+  .auth-role-btn {
+    padding: var(--space-2);
+  }
+}

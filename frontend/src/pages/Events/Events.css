@@ -3,7 +3,7 @@
 .events-toolbar .search-wrap { flex: 1; min-width: 240px; position: relative; }
 .events-toolbar .search-wrap input { width: 100%; padding-left: 40px; }
 .events-toolbar .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); }
-.events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-6); }
+.events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: var(--space-6); }
 
 .event-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-xl); overflow: hidden; transition: all var(--transition-base); text-decoration: none; color: inherit; display: block; }
 .event-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); color: inherit; }
@@ -53,3 +53,10 @@
 .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-4); }
 
 @media (max-width: 640px) { .events-grid { grid-template-columns: 1fr; } }
+
+@media (max-width: 480px) {
+  .comment-input-wrap {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

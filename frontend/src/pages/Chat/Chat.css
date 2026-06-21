@@ -783,4 +783,20 @@
   .chat-main-header .chat-back-btn { 
     display: flex; 
   }
+  .chat-messages {
+    padding: var(--space-3) var(--space-2);
+  }
+  .chat-message {
+    max-width: 85%;
+  }
+  .chat-input-area {
+    padding: var(--space-3) var(--space-3);
+  }
+  .chat-main-header {
+    padding: var(--space-2) var(--space-4);
+  }
+  .doc-attachment-card {
+    min-width: 150px;
+    max-width: 100%;
+  }
 }

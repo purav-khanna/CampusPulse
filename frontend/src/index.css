@@ -504,3 +504,9 @@ p {
     padding: 0 var(--space-4);
   }
 }
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

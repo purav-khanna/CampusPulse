@@ -257,7 +257,7 @@
 /* ── Compact Club Cards ───────────────────────────────────── */
 .cl-clubs-list-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
   gap: 16px;
   margin-top: 16px;
 }
@@ -493,6 +493,11 @@
   .cl-linkedin-event-card {
     flex-direction: column;
     align-items: stretch;
+  }
+  .cl-event-action-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 }
 

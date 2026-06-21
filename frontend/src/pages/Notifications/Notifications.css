@@ -38,3 +38,19 @@
   border-color: var(--primary-500) !important;
   box-shadow: var(--shadow-sm);
 }
+
+@media (max-width: 480px) {
+  .notif-item {
+    position: relative;
+    padding-right: var(--space-8);
+  }
+  .notif-time {
+    display: block;
+    margin-top: var(--space-1);
+  }
+  .notif-dismiss {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+  }
+}
